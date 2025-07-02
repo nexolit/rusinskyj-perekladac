@@ -1,0 +1,33 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Frontend pre Rusínsky prekladač",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx parcel index.html --open",
+    "build": "npx parcel build index.html"
+  },
+  "alias": {
+    "vue": "vue/dist/vue.esm-bundler.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "bulma": "^1.0.4",
+    "onnxruntime-web": "^1.22.0",
+    "parcel": "^2.15.2",
+    "tokenizers": "^0.13.3",
+    "tokenizers-linux-x64-gnu": "^0.13.4-rc1",
+    "translit-rue": "^3.0.1",
+    "vue": "^3.5.16",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@parcel/packager-raw-url": "^2.15.2",
+    "@parcel/transformer-vue": "^2.15.2",
+    "@parcel/transformer-webmanifest": "^2.15.2",
+    "buffer": "^6.0.3"
+  }
+}

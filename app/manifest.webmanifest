@@ -1,0 +1,15 @@
+{
+"name": "Rusínsky prekladač",
+"short_name": "Prekladač",
+"start_url": ".",
+"display": "standalone",
+"background_color": "#ffffff",
+"theme_color": "#00d1b2",
+"icons": [
+    {
+    "src": "src/assets/icons/icon-512.png",
+    "sizes": "512x512",
+    "type": "image/png"
+    }
+]
+}
