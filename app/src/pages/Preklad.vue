@@ -16,6 +16,8 @@ import { ref } from 'vue';
 import { translit } from 'translit-rue';
 import axios from 'axios';
 
+const API_URL = "https://api.rusyn.it"; // Change this to http://localhost:5000 for local usage
+
 // http://jrgraphix.net/r/Unicode/0400-04FF
 const cyrillicPattern = /^[\u0400-\u04FF]+$/;
 
@@ -61,9 +63,9 @@ function translate() {
         //translit into Azbuka
         if(!cyrillicPattern.test(translation_text)) 
             translation_text = translit(translation_text, "latCyr");
-	
-	isSlovakLoading.value = true;
-        axios.get('http://localhost:5000/translate/rue/sk/' + translation_text)
+        
+	    isSlovakLoading.value = true;
+        axios.get(API_URL + '/translate/rue/sk/' + translation_text)
         .then(function (response) {
             // handle success
             slovak_text.value.value = response.data;
@@ -71,7 +73,7 @@ function translate() {
     } else if(target_lang == "rusyn") {
         const translation_text = slovak_text.value.value;
         isRusynLoading.value = true;
-        axios.get('http://localhost:5000/translate/sk/rue/' + translation_text)
+        axios.get(API_URL + 'http://localhost:5000/translate/sk/rue/' + translation_text)
         .then(function (response) {
             // handle success
             rusyn_text.value.value = response.data;

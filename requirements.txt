@@ -1,0 +1,7 @@
+numpy
+flask
+flask_cors
+gunicorn
+torch
+youtokentome
+--extra-index-url https://download.pytorch.org/whl/cpu

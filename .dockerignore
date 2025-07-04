@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.zip
+
+# Corpus leftovers
+train.rue
+train.sk
+train.uk
+
+.env
+.git/
+unused/
+img/
+extracted_files/
+app/

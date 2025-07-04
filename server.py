@@ -3,7 +3,7 @@ from flask_cors import CORS
 from translate import translate
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # <-- This enables CORS for all routes
+CORS(app, resources={'/*': {"origins": ["http://localhost:1234", "https://prekladac.rusyn.it"]}})
 
 @app.route("/translate/rue/sk/<text>")
 def translate_rue_sk(text):
