@@ -1,6 +1,7 @@
 numpy
 flask
 flask_cors
+certbot
 gunicorn
 torch
 youtokentome

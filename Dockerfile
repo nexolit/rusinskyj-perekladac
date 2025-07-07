@@ -6,6 +6,8 @@ WORKDIR /workdir
 
 # Copy dependencies first for caching
 COPY requirements.txt .
+COPY serve.sh .
+RUN chmod +x serve.sh
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -20,6 +22,7 @@ COPY . .
 
 # Expose the port Gunicorn will run on
 EXPOSE 80
+EXPOSE 443
 
 # Start Gunicorn with Flask
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "server:app"]
+CMD ["./serve.sh"]
