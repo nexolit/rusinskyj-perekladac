@@ -2,10 +2,10 @@
 <section class="section">
     <h1 class="title">Prekladanie</h1>
     <div class="control is-large" :class="{'is-loading': isRusynLoading}">
-    	<textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large is-flex-direction-row mb-5" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled"></textarea>
+    	<textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large is-flex-direction-row mb-5" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled"></textarea>
     </div>
     <div class="control is-large" :class="{'is-loading': isSlovakLoading}">
-    	<textarea ref="slovak_text" @change="slovak_change" class="textarea is-large mb-5" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled"></textarea>
+    	<textarea ref="slovak_text" @change="slovak_change" class="textarea is-large mb-5" :class="{'is-danger': isSlovakError}" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled"></textarea>
     </div>
     <button class="button mr-5" @click="translate">Prelož</button>
 </section>
@@ -28,6 +28,9 @@ const rusynIsDisabled = ref(null);
 
 const isRusynLoading = ref(false);
 const isSlovakLoading = ref(false);
+
+const isRusynError = ref(false);
+const isSlovakError = ref(false);
 
 let target_lang = "";
 function rusyn_change() {
@@ -58,7 +61,11 @@ function slovak_change() {
 }
 
 function translate() {
+    isSlovakError.value = false;
+    isRusynError.value = false;
+
     if(target_lang == "slovak") {
+        slovak_text.value = "";
         let translation_text = rusyn_text.value.value;
         //translit into Azbuka
         if(!cyrillicPattern.test(translation_text)) 
@@ -66,14 +73,25 @@ function translate() {
         
 	    isSlovakLoading.value = true;
         axios.get(API_URL + '/translate/rue/sk/' + translation_text)
+        .catch(function (error) {
+            //handle error
+            slovak_text.value.value = error.message;
+            isSlovakError.value = true;
+        })
         .then(function (response) {
             // handle success
             slovak_text.value.value = response.data;
         }).finally(() => isSlovakLoading.value = false);
     } else if(target_lang == "rusyn") {
+        rusyn_text.value = "";
         const translation_text = slovak_text.value.value;
         isRusynLoading.value = true;
-        axios.get(API_URL + 'http://localhost:5000/translate/sk/rue/' + translation_text)
+        axios.get(API_URL + '/translate/sk/rue/' + translation_text)
+        .catch(function (error) {
+            //handle error
+            rusyn_text.value.value = error.message;
+            isRusynError.value = true;
+        })
         .then(function (response) {
             // handle success
             rusyn_text.value.value = response.data;
