@@ -29,6 +29,10 @@ jobs:
         working-directory: ./app
         run: npm run build
 
+      - name: Apply Vue Router workaround
+        working-directory: ./app
+        run: cp dist/index.html dist/404.html # Workaround for Github Pages not recognizing Vue routes
+        
       - name: Upload build output
         uses: actions/upload-pages-artifact@v3
         with:
