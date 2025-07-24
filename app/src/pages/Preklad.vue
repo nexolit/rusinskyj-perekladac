@@ -1,6 +1,6 @@
 <template>
 <section class="section">
-    <h1 class="title">Prekladanie</h1>
+    <h1 class="title is-size-2">Prekladanie</h1>
     <div class="control is-large" :class="{'is-loading': isRusynLoading}">
     	<textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large is-flex-direction-row mb-5" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled"></textarea>
     </div>

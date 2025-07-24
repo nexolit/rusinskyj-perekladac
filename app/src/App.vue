@@ -37,9 +37,24 @@ nav {
     top: 2vh;
     right: 6vw;
 }
+main {
+    flex: 1;
+}
 footer img {
-    position: absolute;
-    bottom: 0;
+    display: block;
+    width: 100%;
+    height: auto;
+}
+@media (max-width: 600px) {
+    footer, header { height: 8vh; }
+    footer img, header img {
+        height: 100%;
+        object-fit: cover;
+    }
+    header img {
+        object-position: right;
+        transform: scaleX(-1);
+    }
 }
 </style>
 <script>
