@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd model
+
 if [ "$USE_SSL" = "true" ]; then
   echo "Starting in HTTPS mode"
   if [[ "$DOMAIN" ]]; then # IF DOMAIN variable exists 
