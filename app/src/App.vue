@@ -20,7 +20,7 @@ import footer from './assets/ui/footer.bmp';
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+@import url('https://fonts.bunny.net/css2?family=Tiny5&display=swap');
 
 .link {
     color: black;
