@@ -8,6 +8,7 @@ import footer from './assets/ui/footer.bmp';
     <img :src="banner" alt="Nápis Rusínsky prekladač s tradičným folkórnym vzorom">
     <nav>
         <router-link class="link px-2 py-2 mx-5" to="/">Domov</router-link>
+        <router-link class="link px-2 py-2 mx-5" to="/info">Info</router-link>
         <router-link class="link px-2 py-2 mx-5" to="/preklad">Preklad</router-link>
     </nav>
 </header>

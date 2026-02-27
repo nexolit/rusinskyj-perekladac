@@ -1,20 +1,84 @@
 <template>
-<section class="section">
-    <h1 class="title is-size-2">Prekladanie</h1>
-    <div class="control is-large" :class="{'is-loading': isRusynLoading}">
-    	<textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large is-flex-direction-row mb-5" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled"></textarea>
+  <section class="section">
+    <div class="container" style="max-width: 860px;">
+      <h1 class="title is-size-2">Prekladanie</h1>
+      <div class="columns">
+        <div class="column">
+          <div class="script-toggle mb-2">
+            <button :class="['toggle-btn', rusynType === 'cyr' ? 'active' : '']" @click="set_rusyn_type('cyr')">Д</button>
+            <button :class="['toggle-btn', rusynType === 'lat' ? 'active' : '']" @click="set_rusyn_type('lat')">D</button>
+          </div>
+          <div class="control is-large" :class="{'is-loading': isRusynLoading}">
+            <textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled" rows="10"></textarea>
+          </div>
+        </div>
+        <div class="column">
+          <div class="script-toggle mb-2">
+            <button :class="['toggle-btn', slovakType === 'cyr' ? 'active' : '']" @click="set_slovak_type('cyr')">Д</button>
+            <button :class="['toggle-btn', slovakType === 'lat' ? 'active' : '']" @click="set_slovak_type('lat')">D</button>
+          </div>
+          <div class="control is-large" :class="{'is-loading': isSlovakLoading}">
+            <textarea ref="slovak_text" @change="slovak_change" class="textarea is-large" :class="{'is-danger': isSlovakError}" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled" rows="10"></textarea>
+          </div>
+        </div>
+      </div>
+      <button class="button mr-5 mt-3" @click="translate">Prelož</button>
     </div>
-    <div class="control is-large" :class="{'is-loading': isSlovakLoading}">
-    	<textarea ref="slovak_text" @change="slovak_change" class="textarea is-large mb-5" :class="{'is-danger': isSlovakError}" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled"></textarea>
-    </div>
-    <button class="button mr-5" @click="translate">Prelož</button>
-</section>
+  </section>
 </template>
 
+<style scoped>
+.button {
+    color: black;
+    border: 7px solid black;
+    text-decoration: underline;
+    font-family: "Tiny5", sans-serif;
+    font-size: x-large;
+    background: none;
+    cursor: pointer;
+}
+.script-toggle {
+  display: inline-flex;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.toggle-btn {
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.18s ease;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: #111;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+</style>
+
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { translit } from 'translit-rue';
 import axios from 'axios';
+
+const route = useRoute();
+
+onMounted(() => {
+  if (route.query.text && rusyn_text.value) {
+    rusyn_text.value.value = route.query.text;
+    slovakIsDisabled.value = true;
+    target_lang = "slovak";
+  }
+});
 
 const API_URL = "https://api.rusyn.it"; // Change this to http://localhost:5000 for local usage
 
@@ -31,6 +95,29 @@ const isSlovakLoading = ref(false);
 
 const isRusynError = ref(false);
 const isSlovakError = ref(false);
+
+const rusynType = ref('cyr');
+const slovakType = ref('lat');
+
+function set_rusyn_type(script) {
+  if (rusynType.value === script) return;
+  rusynType.value = script;
+  const val = rusyn_text.value?.value;
+  if (!val) return;
+  rusyn_text.value.value = script === 'lat'
+    ? translit(val, 'cyrLat')
+    : translit(val, 'latCyr');
+}
+
+function set_slovak_type(script) {
+  if (slovakType.value === script) return;
+  slovakType.value = script;
+  const val = slovak_text.value?.value;
+  if (!val) return;
+  slovak_text.value.value = script === 'lat'
+    ? translit(val, 'cyrLat')
+    : translit(val, 'latCyr');
+}
 
 let target_lang = "";
 function rusyn_change() {
