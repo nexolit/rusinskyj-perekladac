@@ -2,27 +2,25 @@
   <section class="section">
     <div class="container" style="max-width: 860px;">
       <h1 class="title is-size-2">Prekladanie</h1>
-      <div class="columns">
-        <div class="column">
-          <div class="script-toggle mb-2">
-            <button :class="['toggle-btn', rusynType === 'cyr' ? 'active' : '']" @click="set_rusyn_type('cyr')">Д</button>
-            <button :class="['toggle-btn', rusynType === 'lat' ? 'active' : '']" @click="set_rusyn_type('lat')">D</button>
-          </div>
+      <div class="rows">
+        <div class="row">
           <div class="control is-large" :class="{'is-loading': isRusynLoading}">
-            <textarea ref="rusyn_text" @change="rusyn_change" class="textarea is-large" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled" rows="10"></textarea>
+            <div class="textarea-container">
+              <textarea ref="rusyn_text" @input="onInput('rusyn')" class="textarea is-large" :class="{'is-danger': isRusynError}" placeholder="Text v rusínčine" :readOnly="rusynIsDisabled" rows="6"></textarea>
+              <button class="toggle-button script-toggle-button" :title="rusynType === 'cyr' ? 'Cyrilica' : 'Latinka'" @click="toggleRusynScript">{{ rusynType === 'cyr' ? 'Д' : 'D' }}</button>
+              <button class="toggle-button record-toggle-button icon" :title="rusynType === 'cyr' ? 'Cyrilica' : 'Latinka'" @click="toggleRusynScript"><i class="fas fa-microphone"></i></button>
+              <button class="toggle-button camera-toggle-button icon" :title="rusynType === 'cyr' ? 'Cyrilica' : 'Latinka'" @click="toggleRusynScript"><i class="fas fa-camera"></i></button>
+            </div>
           </div>
         </div>
-        <div class="column">
-          <div class="script-toggle mb-2">
-            <button :class="['toggle-btn', slovakType === 'cyr' ? 'active' : '']" @click="set_slovak_type('cyr')">Д</button>
-            <button :class="['toggle-btn', slovakType === 'lat' ? 'active' : '']" @click="set_slovak_type('lat')">D</button>
-          </div>
+        <button class="button mr-5 mt-3 mb-3" @click="translate">Vymeň(Ikonka)</button>
+        <div class="row">
           <div class="control is-large" :class="{'is-loading': isSlovakLoading}">
-            <textarea ref="slovak_text" @change="slovak_change" class="textarea is-large" :class="{'is-danger': isSlovakError}" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled" rows="10"></textarea>
+            <textarea ref="slovak_text" @input="onInput('slovak')" class="textarea is-large" :class="{'is-danger': isSlovakError}" placeholder="Text v slovenčine" :readOnly="slovakIsDisabled" rows="6"></textarea>
           </div>
         </div>
       </div>
-      <button class="button mr-5 mt-3" @click="translate">Prelož</button>
+      <button class="button mr-5 mt-3 mb-3" @click="translate">Prelož</button>
     </div>
   </section>
 </template>
@@ -62,6 +60,34 @@
   color: #111;
   box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
+
+.textarea-container {
+  position: relative;
+}
+.toggle-button {
+  position: absolute;
+  border: none;
+  background: #f0f0f0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  width: 32px;
+  height: 32px;
+}
+.script-toggle-button {
+  top: 8px;
+  right: 8px;
+}
+.record-toggle-button {
+  bottom: 8px;
+  right: 8px;
+}
+.camera-toggle-button {
+  bottom: 8px;
+  right: 48px;
+}
 </style>
 
 <script setup>
@@ -83,12 +109,12 @@ onMounted(() => {
 const API_URL = "https://api.rusyn.it"; // Change this to http://localhost:5000 for local usage
 
 // http://jrgraphix.net/r/Unicode/0400-04FF
-const cyrillicPattern = /^[\u0400-\u04FF]+$/;
+const cyrillicPattern = /[\u0400-\u04FF]/;
 
 const rusyn_text = ref(null);
 const slovakIsDisabled = ref(false);
-const slovak_text = ref(0);
-const rusynIsDisabled = ref(null);
+const slovak_text = ref(null);
+const rusynIsDisabled = ref(false);
 
 const isRusynLoading = ref(false);
 const isSlovakLoading = ref(false);
@@ -97,54 +123,83 @@ const isRusynError = ref(false);
 const isSlovakError = ref(false);
 
 const rusynType = ref('cyr');
-const slovakType = ref('lat');
 
-function set_rusyn_type(script) {
-  if (rusynType.value === script) return;
-  rusynType.value = script;
-  const val = rusyn_text.value?.value;
-  if (!val) return;
-  rusyn_text.value.value = script === 'lat'
-    ? translit(val, 'cyrLat')
-    : translit(val, 'latCyr');
-}
+const isCyrillic = (t) => cyrillicPattern.test(t);
+const isLatin = (t) => /[A-Za-z\u00C0-\u017F]/.test(t);
 
-function set_slovak_type(script) {
-  if (slovakType.value === script) return;
-  slovakType.value = script;
-  const val = slovak_text.value?.value;
-  if (!val) return;
-  slovak_text.value.value = script === 'lat'
-    ? translit(val, 'cyrLat')
-    : translit(val, 'latCyr');
+function toggleRusynScript() {
+  const newScript = rusynType.value === 'cyr' ? 'lat' : 'cyr';
+  const val = rusyn_text.value?.value || '';
+  rusynType.value = newScript;
+  if (!val.trim()) return;
+  if (newScript === 'lat') {
+    if (isCyrillic(val)) rusyn_text.value.value = translit(val, 'cyrLat');
+  } else {
+    if (isLatin(val)) rusyn_text.value.value = translit(val, 'latCyr');
+  }
 }
 
 let target_lang = "";
-function rusyn_change() {
-    console.log("changed")
-    if(rusyn_text.value.value.trim() != '') {
-        slovakIsDisabled.value = true;
-        target_lang = "slovak";
-    } else if(slovak_text.value.value.trim() != '') {
-    	target_lang = "rusyn";
-    	slovakIsDisabled.value = false;
-    } else {
-        slovakIsDisabled.value = false;
-        target_lang = "";
-    }
-}
+function onInput(origin) {
+  const r = rusyn_text.value?.value || '';
+  const s = slovak_text.value?.value || '';
+  const val = origin === 'rusyn' ? r : s;
 
-function slovak_change() {
-    if(slovak_text.value.value.trim() != '') {
-        rusynIsDisabled.value = true;
-        target_lang = "rusyn";
-    } else if(rusyn_text.value.value.trim() != '') {
-    	target_lang = "slovak";
-    	rusynIsDisabled.value = false;
-    } else {
+  if (!val.trim()) {
+    // if current emptied, decide based on other textarea
+    if (origin === 'rusyn') {
+      if (s.trim()) {
+        if (isCyrillic(s)) {
+          target_lang = 'slovak';
+          slovakIsDisabled.value = true;
+          rusynIsDisabled.value = false;
+        } else {
+          target_lang = 'rusyn';
+          rusynIsDisabled.value = true;
+          slovakIsDisabled.value = false;
+        }
+      } else {
         rusynIsDisabled.value = false;
-        target_lang = "";
+        slovakIsDisabled.value = false;
+        target_lang = '';
+      }
+    } else {
+      if (r.trim()) {
+        if (isCyrillic(r)) {
+          target_lang = 'slovak';
+          slovakIsDisabled.value = true;
+          rusynIsDisabled.value = false;
+        } else {
+          target_lang = 'rusyn';
+          rusynIsDisabled.value = true;
+          slovakIsDisabled.value = false;
+        }
+      } else {
+        rusynIsDisabled.value = false;
+        slovakIsDisabled.value = false;
+        target_lang = '';
+      }
     }
+    return;
+  }
+
+  // If there's content, use isCyrillic to decide. If origin is rusyn and no Cyrillic assume rusyn latin.
+  if (isCyrillic(val)) {
+    target_lang = 'slovak';
+    slovakIsDisabled.value = true;
+    rusynIsDisabled.value = false;
+  } else {
+    if (origin === 'slovak') {
+      target_lang = 'rusyn';
+      rusynIsDisabled.value = true;
+      slovakIsDisabled.value = false;
+    } else {
+      // rusyn origin but latin chars -> still rusyn input
+      target_lang = 'slovak';
+      slovakIsDisabled.value = true;
+      rusynIsDisabled.value = false;
+    }
+  }
 }
 
 function translate() {
@@ -152,37 +207,37 @@ function translate() {
     isRusynError.value = false;
 
     if(target_lang == "slovak") {
-        slovak_text.value = "";
-        let translation_text = rusyn_text.value.value;
-        //translit into Azbuka
-        if(!cyrillicPattern.test(translation_text)) 
-            translation_text = translit(translation_text, "latCyr");
+      if (slovak_text.value) slovak_text.value.value = "";
+      let translation_text = rusyn_text.value?.value || '';
+      //translit into Azbuka
+      if(!isCyrillic(translation_text)) 
+        translation_text = translit(translation_text, "latCyr");
         
-	    isSlovakLoading.value = true;
-        axios.get(API_URL + '/translate/rue/sk/' + translation_text)
-        .catch(function (error) {
-            //handle error
-            slovak_text.value.value = error.message;
-            isSlovakError.value = true;
-        })
-        .then(function (response) {
-            // handle success
-            slovak_text.value.value = response.data;
-        }).finally(() => isSlovakLoading.value = false);
+    	isSlovakLoading.value = true;
+      axios.get(API_URL + '/translate/rue/sk/' + translation_text)
+      .catch(function (error) {
+        //handle error
+        if (slovak_text.value) slovak_text.value.value = error.message;
+        isSlovakError.value = true;
+      })
+      .then(function (response) {
+        // handle success
+        if (slovak_text.value) slovak_text.value.value = response.data;
+      }).finally(() => isSlovakLoading.value = false);
     } else if(target_lang == "rusyn") {
-        rusyn_text.value = "";
-        const translation_text = slovak_text.value.value;
-        isRusynLoading.value = true;
-        axios.get(API_URL + '/translate/sk/rue/' + translation_text)
-        .catch(function (error) {
-            //handle error
-            rusyn_text.value.value = error.message;
-            isRusynError.value = true;
-        })
-        .then(function (response) {
-            // handle success
-            rusyn_text.value.value = response.data;
-        }).finally(() => isRusynLoading.value = false);
+      if (rusyn_text.value) rusyn_text.value.value = "";
+      const translation_text = slovak_text.value?.value || '';
+      isRusynLoading.value = true;
+      axios.get(API_URL + '/translate/sk/rue/' + translation_text)
+      .catch(function (error) {
+        //handle error
+        if (rusyn_text.value) rusyn_text.value.value = error.message;
+        isRusynError.value = true;
+      })
+      .then(function (response) {
+        // handle success
+        if (rusyn_text.value) rusyn_text.value.value = response.data;
+      }).finally(() => isRusynLoading.value = false);
     }
 }
 </script>

@@ -56,6 +56,16 @@ footer img {
         object-position: right;
         transform: scaleX(-1);
     }
+    /* reduce spacing of router links on small screens */
+    nav {
+        top: 1vh;
+        right: 3vw;
+    }
+    nav .link {
+        margin: 0 0.4rem; /* override mx-5 */
+        padding: 0.2rem 0.4rem; /* smaller touch target but compact */
+        font-size: large;
+    }
 }
 </style>
 <script>
