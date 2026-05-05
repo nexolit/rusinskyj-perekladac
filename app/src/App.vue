@@ -58,13 +58,13 @@ footer img {
     }
     /* reduce spacing of router links on small screens */
     nav {
-        top: 1vh;
-        right: 3vw;
+        top: 1.5vh;
+        right: 0;
     }
     nav .link {
-        margin: 0 0.4rem; /* override mx-5 */
-        padding: 0.2rem 0.4rem; /* smaller touch target but compact */
-        font-size: large;
+        margin: 0 0.4rem !important; /* override mx-5 */
+        padding: 0.2rem 0.4rem !important; /* smaller touch target but compact */
+        font-size: x-large;
     }
 }
 </style>

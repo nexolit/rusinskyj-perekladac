@@ -11,5 +11,8 @@ createApp(App)
 
 // Register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(new URL('serviceworker.js', import.meta.url), {type: 'module'})
+  navigator.serviceWorker.register(
+    new URL('./serviceworker.js', import.meta.url),
+    { type: 'module' }
+  );
 }
